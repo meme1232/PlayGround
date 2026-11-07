@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover" />
+<meta name="theme-color" content="#05070f" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+<meta name="description" content="GOONING — a goo-soaked 3D arcade game. Absorb goo, dodge the goons, don't get splatted." />
+<title>GOONING — a goo arcade</title>
+<link rel="stylesheet" href="./styles.css" />
+<link rel="icon" href="data:," />
+</head>
+<body>
+  <div id="app">
+    <canvas id="game" aria-label="Gooning game arena"></canvas>
+
+    <div id="vignette" aria-hidden="true"></div>
+    <div id="damageFlash" aria-hidden="true"></div>
+    <div id="gooFlash" aria-hidden="true"></div>
+
+    <!-- ============ IN-GAME HUD ============ -->
+    <div id="hud" class="hidden" aria-hidden="true">
+      <div class="hud-top">
+        <div class="score-block">
+          <div class="eyebrow">SCORE</div>
+          <div id="score" class="score-value">0</div>
+          <div id="bestInline" class="best-inline">BEST 0</div>
+        </div>
+
+        <div id="hearts" class="hearts" aria-label="Lives"></div>
+
+        <div class="hud-right">
+          <div class="wave-chip"><span class="wave-dot"></span>WAVE <b id="wave">1</b></div>
+          <button id="pauseBtn" class="icon-btn" aria-label="Pause">
+            <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><rect x="6" y="4" width="4" height="16" rx="1.6" fill="currentColor"/><rect x="14" y="4" width="4" height="16" rx="1.6" fill="currentColor"/></svg>
+          </button>
+        </div>
+      </div>
+
+      <div id="combo" class="combo" aria-live="polite">
+        <span id="comboMult">x2</span><span class="combo-label">COMBO</span>
+      </div>
+
+      <div id="announce" class="announce" aria-live="polite"></div>
+    </div>
+
+    <!-- ============ TOUCH CONTROLS ============ -->
+    <div id="controls" class="hidden" aria-hidden="true">
+      <div id="stickZone" class="stick-zone">
+        <div id="stickGhost" class="stick-ghost">
+          <span class="stick-label">MOVE</span>
+        </div>
+        <div id="stick" class="stick">
+          <div id="stickKnob" class="stick-knob"></div>
+        </div>
+      </div>
+
+      <button id="dashBtn" class="dash-btn" aria-label="Dash">
+        <span class="dash-icon" aria-hidden="true">
+          <svg viewBox="0 0 32 32" width="30" height="30"><path d="M18.5 3 6 18.2h7.2L12.4 29 26 13.4h-7.6L18.5 3Z" fill="currentColor"/></svg>
+        </span>
+        <span class="dash-label">DASH</span>
+        <span id="dashPips" class="dash-pips"><i></i><i></i><i></i></span>
+      </button>
+    </div>
+
+    <!-- ============ TITLE ============ -->
+    <section id="titleScreen" class="screen title-screen">
+      <div class="title-inner">
+        <div class="title-top">
+          <div class="brandline"><span class="brand-dot"></span> GOO INC. PRESENTS</div>
+          <h1 class="logo" aria-label="Gooning">
+            <span class="logo-text">GOONING</span>
+            <svg class="logo-drips" viewBox="0 0 420 46" aria-hidden="true" preserveAspectRatio="none">
+              <path d="M26 2c0 10-7 12-7 22 0 8 6 12 12 12s11-5 11-12c0-9-8-11-8-22h-8Z" fill="currentColor"/>
+              <path d="M118 2c0 7-4 10-4 16 0 6 4 9 9 9s9-4 9-9c0-6-4-8-4-16h-10Z" fill="currentColor"/>
+              <path d="M232 2c0 12-8 15-8 26 0 9 7 14 14 14s14-6 14-14c0-11-9-14-9-26h-11Z" fill="currentColor"/>
+              <path d="M352 2c0 8-5 10-5 18 0 7 5 10 10 10s10-4 10-10c0-8-5-10-5-18h-10Z" fill="currentColor"/>
+            </svg>
+          </h1>
+          <p class="tagline">Absorb the goo. Dodge the goons.<br/>Don't get splatted.</p>
+        </div>
+
+        <div class="title-bottom">
+          <button id="playBtn" class="btn btn-primary">
+            <span>SLIME IN</span>
+            <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M8 5.5v13L19 12 8 5.5Z" fill="currentColor"/></svg>
+          </button>
+
+          <div class="best-row">BEST <b id="bestScore">0</b></div>
+
+          <div class="howto">
+            <div class="howto-item"><span class="key">DRAG</span><span>roll around</span></div>
+            <div class="howto-item"><span class="key">DASH</span><span>slam the goons</span></div>
+            <div class="howto-item desktop-only"><span class="key">WASD</span><span>+ SPACE</span></div>
+          </div>
+
+          <div class="title-actions">
+            <button id="soundBtnTitle" class="text-btn" aria-label="Toggle sound">SOUND: ON</button>
+            <span class="dot-sep">•</span>
+            <span class="fineprint">90-second-ish chaos, forever</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ PAUSE ============ -->
+    <section id="pauseScreen" class="screen overlay-screen hidden" aria-hidden="true">
+      <div class="panel">
+        <div class="panel-eyebrow">STICKY SITUATION</div>
+        <h2 class="panel-title">PAUSED</h2>
+        <p class="panel-sub">The goons are also taking a breather.</p>
+        <div class="panel-buttons">
+          <button id="resumeBtn" class="btn btn-primary">RESUME</button>
+          <button id="restartBtn" class="btn btn-ghost">RESTART</button>
+          <div class="panel-row">
+            <button id="soundBtnPause" class="text-btn">SOUND: ON</button>
+            <button id="quitBtn" class="text-btn">MENU</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ GAME OVER ============ -->
+    <section id="overScreen" class="screen overlay-screen hidden" aria-hidden="true">
+      <div class="panel">
+        <div class="splat-mark" aria-hidden="true">
+          <svg viewBox="0 0 120 120" width="86" height="86">
+            <path d="M60 8c7 15 10 19 18 17 12-3 15 6 11 15-4 8 5 12 12 16 9 5 6 16-5 19-8 2-7 10-2 15 8 8 1 19-11 18-9-1-13 3-16 9-4 8-14 8-18 0-3-7-8-10-17-8-12 2-18-8-10-16 5-6 4-12-4-16-10-6-7-18 4-20 8-2 9-9 5-16-5-10 4-18 13-13 7 4 10 0 13-8 2-5 5-7 7-2Z" fill="currentColor"/>
+            <circle cx="49" cy="52" r="7" fill="#070a12" opacity=".8"/>
+            <circle cx="78" cy="54" r="7" fill="#070a12" opacity=".8"/>
+            <path d="M52 74c5-6 13-6 18 0" stroke="#070a12" stroke-width="5" stroke-linecap="round" fill="none" opacity=".8"/>
+          </svg>
+        </div>
+        <div class="panel-eyebrow">YOU GOT SPLATTED</div>
+        <h2 class="panel-title">GOONED</h2>
+        <div class="result-grid">
+          <div class="result"><span>SCORE</span><b id="finalScore">0</b></div>
+          <div class="result"><span>BEST</span><b id="finalBest">0</b></div>
+          <div class="result"><span>WAVE</span><b id="finalWave">1</b></div>
+          <div class="result"><span>TIME</span><b id="finalTime">0s</b></div>
+        </div>
+        <div class="panel-buttons">
+          <button id="againBtn" class="btn btn-primary">GO AGAIN</button>
+          <button id="menuBtn" class="btn btn-ghost">MENU</button>
+        </div>
+        <div id="newBest" class="new-best hidden">NEW BEST!</div>
+      </div>
+    </section>
+
+    <div id="rotateHint" class="rotate-hint hidden">
+      <div class="rotate-icon">↻</div>
+      <p>Rotate for a wider slice of goo</p>
+    </div>
+  </div>
+
+  <script type="module" src="./src/main.js"></script>
+</body>
+</html>
